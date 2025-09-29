@@ -1,0 +1,73 @@
+{
+    "version": 2,
+    "framework": null,
+    "functions": {
+        "api/index.php": { "runtime": "vercel-php@0.7.3" }
+      },
+      "routes": [
+        {
+          "src": "/build/(.*)",
+          "dest": "/public/build/$1",
+          "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+        },
+        {
+          "src": "/css/(.*)",
+          "dest": "/public/css/$1",
+          "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+        },
+        {
+          "src": "/js/(.*)",
+          "dest": "/public/js/$1",
+          "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+        },
+        {
+          "src": "/fonts/(.*)",
+          "dest": "/public/fonts/$1",
+          "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+        },
+        {
+          "src": "/vendor/(.*)",
+          "dest": "/public/vendor/$1",
+          "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+        },
+        {
+          "src": "/(.*\\.(?:css|js|png|jpg|jpeg|gif|svg|ico|ttf|woff|woff2|eot|otf|webp|avif|txt))$",
+          "dest": "/public/$1",
+          "headers": { "Cache-Control": "public, max-age=31536000, immutable" }
+        },
+        {
+          "src": "/(.*)",
+          "dest": "/api/index.php"
+        }
+      ],
+    "outputDirectory": "public",
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "true",
+        "APP_URL": "https://inventory-seven-chi.vercel.app",
+        "ASSET_URL": "https://inventory-seven-chi.vercel.app",
+        "APP_ASSET_URL": "https://inventory-seven-chi.vercel.app",
+        "APP_KEY": "base64:iRCvAJ7KCd0pOiywfHJSc0Fr/qfmgowABa+dRpUZoEo=",
+        "APP_CONFIG_CACHE": "/tmp/config.php",
+        "APP_EVENTS_CACHE": "/tmp/events.php",
+        "APP_PACKAGES_CACHE": "/tmp/packages.php",
+        "APP_ROUTES_CACHE": "/tmp/routes.php",
+        "APP_SERVICES_CACHE": "/tmp/services.php",
+        "VIEW_COMPILED_PATH": "/tmp",
+        "CACHE_DRIVER": "array",
+        "LOG_CHANNEL": "stderr",
+        "SESSION_DRIVER": "cookie",
+        "SESSION_DOMAIN": "",
+        "SESSION_SECURE_COOKIE": "true",
+        "SESSION_SAME_SITE": "lax",
+        "QUEUE_CONNECTION": "database",
+        "DB_CONNECTION": "d1",
+        "CLOUDFLARE_D1_DATABASE_ID": "4adebc36-70a2-473f-ae64-599616e21fbf",
+        "CLOUDFLARE_TOKEN": "Xhtsvri1rgzXBKTkAnx7fD72GtwluF8y8xWjXe2O",
+        "CLOUDFLARE_ACCOUNT_ID": "b2c7af554f7c4e5a520aacec3748cb48",
+        "VITE_APP_NAME": "Book SMS",
+        "VITE_APP_ENV": "production",
+        "VITE_APP_URL": "https://inventory-seven-chi.vercel.app",
+        "MIX_APP_URL": "https://inventory-seven-chi.vercel.app"
+    }
+}
