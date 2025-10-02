@@ -140,4 +140,9 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $this->role->permissions ?? [];
     }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
+    }
 }

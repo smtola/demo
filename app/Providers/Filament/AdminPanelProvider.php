@@ -24,7 +24,6 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            // Use local provider with no URL to prevent Bunny CDN link, keep Khmer font family
             ->font('Noto Sans Khmer', null, \Filament\FontProviders\LocalFontProvider::class)
             ->login()
             ->passwordReset()
