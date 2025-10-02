@@ -282,7 +282,7 @@ class Pos extends Component
                         'image_url' => $product->image_url,
                     ]);
 
-                    $product->decrement('quantity_available', $qty);
+                    // Quantity will be adjusted by StockMovement::created hook
 
                     StockMovement::create([
                         'product_id' => $product->id,
@@ -359,73 +359,69 @@ class Pos extends Component
             $this->continue_success_url = $continue_success_url;
 
             // ✅ Create Sale & related records in DB
-            DB::transaction(function () use ($tran_id, $method) {
-                $userId = Auth::id();
-                $customer = Customer::firstOrCreate(['name' => trim($this->customer)]);
+            $userId = Auth::id();
+            $customer = Customer::firstOrCreate(['name' => trim($this->customer)]);
 
-                $sale = Sale::create([
-                    'customer_id'   => $customer->id,
-                    'user_id'       => $userId,
-                    'reference'     => $tran_id,  // link with PayWay tran_id
-                    'subtotal'      => $this->subtotal,
-                    'discount'      => $this->discount,
-                    'tax'           => $this->tax,
-                    'total_amount'  => $this->total,
-                    'payment_method'=> strtoupper($method),
-                    'status'        => 'pending', // will update after PayWay notify
-                    'sale_date'     => now(),
-                    'customer_info' => $customer->name ?? 'Guest',
-                ]);
+            $sale = Sale::create([
+                'customer_id'   => $customer->id,
+                'user_id'       => $userId,
+                'reference'     => $tran_id,  // link with PayWay tran_id
+                'subtotal'      => $this->subtotal,
+                'discount'      => $this->discount,
+                'tax'           => $this->tax,
+                'total_amount'  => $this->total,
+                'payment_method'=> strtoupper($method),
+                'status'        => 'pending', // will update after PayWay notify
+                'sale_date'     => now(),
+                'customer_info' => $customer->name ?? 'Guest',
+            ]);
 
-                foreach (
-                    collect($this->cart)
-                        ->groupBy('id') // prevent duplicate products
-                        ->map(function ($group) {
-                            $first = $group->first();
-                            $first['qty'] = $group->sum('qty'); // merge quantities
-                            return $first;
-                        })
-                        ->values() as $cartItem
-                ) {
-                    $product = Product::lockForUpdate()->find($cartItem['id']);
-                    if (!$product) {
-                        throw new \RuntimeException('Product not found.');
-                    }
+            foreach (
+                collect($this->cart)
+                    ->groupBy('id') // prevent duplicate products
+                    ->map(function ($group) {
+                        $first = $group->first();
+                        $first['qty'] = $group->sum('qty'); // merge quantities
+                        return $first;
+                    })
+                    ->values() as $cartItem
+            ) {
+                $product = Product::lockForUpdate()->find($cartItem['id']);
                 
-                    $qty = $cartItem['qty'];
-                    if ($qty > $product->quantity_available) {
-                        throw new \RuntimeException("Insufficient stock for {$product->name}.");
-                    }
-                
-                    // create sale item
-                    SaleItem::create([
-                        'sale_id'       => $sale->id,
-                        'product_id'    => $product->id,
-                        'quantity'      => $qty,
-                        'selling_price' => $cartItem['price'],
-                        'subtotal'      => $cartItem['price'] * $qty,
-                        'image_url'     => $product->image_url,
-                    ]);
-                
-                    // decrement stock only ONCE with the merged quantity
-                    $product->decrement('quantity_available', $qty);
-                
-                    // track stock movement
-                    StockMovement::create([
-                        'product_id'    => $product->id,
-                        'user_id'       => $userId,
-                        'type'          => 'out',
-                        'quantity'      => $qty,
-                        'selling_price' => $cartItem['price'],
-                        'movement_date' => now(),
-                        'note'          => 'POS Sale ' . $tran_id,
-                        'warehouse_id'  => $product->warehouse_id,
-                        'cost_price'    => $product->cost_price,
-                    ]);
+                if (!$product) {
+                    throw new \RuntimeException('Product not found.');
                 }
-                
-                $this->showAlert("Sale created (pending). Waiting for payment confirmation...", 'info');
-            });
+            
+                $qty = $cartItem['qty'];
+                if ($qty > $product->quantity_available) {
+                    throw new \RuntimeException("Insufficient stock for {$product->name}.");
+                }
+            
+                // create sale item
+                SaleItem::create([
+                    'sale_id'       => $sale->id,
+                    'product_id'    => $product->id,
+                    'quantity'      => $qty,
+                    'selling_price' => $cartItem['price'],
+                    'subtotal'      => $cartItem['price'] * $qty,
+                    'image_url'     => $product->image_url,
+                ]);
+            
+                // Quantity will be adjusted by StockMovement::created hook
+               
+                // track stock movement
+                StockMovement::create([
+                    'product_id'    => $product->id,
+                    'user_id'       => $userId,
+                    'type'          => 'out',
+                    'quantity'      => $qty,
+                    'selling_price' => $cartItem['price'],
+                    'movement_date' => now(),
+                    'note'          => 'POS Sale ' . $tran_id,
+                    'warehouse_id'  => $product->warehouse_id,
+                    'cost_price'    => $product->cost_price,
+                ]);
+            }
 
         } catch (\Throwable $e) {
             $this->showAlert("Checkout failed: {$e->getMessage()}", 'error');

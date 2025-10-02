@@ -34,7 +34,21 @@ class DatabaseSeeder extends Seeder
             );
         }
         
-        $this->command->info('Creating users...');
+        // Create admin user first
+        $this->command->info('Creating admin user...');
+        $adminRole = Role::where('name', 'Admin')->first();
+        User::firstOrCreate(
+            ['email' => 'admin@booksms.com'],
+            [
+                'name' => 'Admin User',
+                'email' => 'admin@booksms.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('admin123'),
+                'role_id' => $adminRole->id,
+                'email_verified_at' => now(),
+            ]
+        );
+        
+        $this->command->info('Creating other users...');
         $users = User::factory(5)->create();
 
         // --- Customers & Suppliers ---
