@@ -7,8 +7,31 @@ use App\Models\Product;
 use App\Observers\ProductObserver;
 use App\Models\User;
 use App\Observers\UserObserver;
+use App\Observers\AuditObserver;
+use App\Observers\RoleObserver;
+use App\Observers\CategoryObserver;
+use App\Observers\CustomerObserver;
+use App\Observers\SupplierObserver;
+use App\Observers\SaleObserver;
+use App\Observers\PurchaseObserver;
+use App\Observers\StockMovementObserver;
+use App\Observers\ExpenseObserver;
+use App\Observers\ProductVariantObserver;
+use App\Observers\WarehouseObserver;
+use App\Observers\PurchaseItemObserver;
+use App\Observers\SaleItemObserver;
+use App\Observers\SupplierProductObserver;
 use App\Services\PayWayServices;
-
+use App\Models\Role;
+use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Sale;
+use App\Models\StockMovement;
+use App\Models\Expense;
+use App\Models\AuditLog;
+use App\Models\ProductVariant;
+use App\Models\Warehouse;
+use App\Models\SaleItem;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +52,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Product::observe(ProductObserver::class);
+        Product::observe(AuditObserver::class);
         User::observe(UserObserver::class);
+        User::observe(AuditObserver::class);
+        Role::observe(AuditObserver::class);
+        Category::observe(AuditObserver::class);
+        Customer::observe(AuditObserver::class);
+        Sale::observe(AuditObserver::class);
+        StockMovement::observe(AuditObserver::class);
+        Expense::observe(AuditObserver::class);
+        SaleItem::observe(AuditObserver::class);
+        Warehouse::observe(AuditObserver::class);
+        ProductVariant::observe(AuditObserver::class);
         
         // Ensure proper asset URL for production and Vercel
         $appUrl = config('app.url');
@@ -41,5 +75,6 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceRootUrl($appUrl);
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+        
     }
 }

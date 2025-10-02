@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('discount',12,2)->default(0);
             $table->integer('tax')->default(0);
             $table->decimal('total_amount',12,2)->default(0);
-            $table->enum('payment_method',['CASH','CREDIT CARDS','KHQR'])->default('CASH');
+            $table->enum('payment_method',['CASH','ABAPAY_KHQR', 'CARDS','ABAPAY','ALIPAY', 'WECHAT'])->default('CASH');
             $table->enum('status',['paid','pending','failed'])->default('pending');
             $table->date('sale_date')->nullable();
             $table->text('customer_info')->nullable();

@@ -12,9 +12,32 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Traits\HasPermissions;
 
 class StockMovementResource extends Resource
 {
+    use HasPermissions;
+
+     // Permission-based access control
+     public static function canViewAny(): bool
+     {
+         return self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","read"]) || self::userIsAdmin();
+     }
+ 
+     public static function canCreate(): bool
+     {
+         return self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","create"]) || self::userIsAdmin();
+     }
+ 
+     public static function canEdit($record): bool
+     {
+         return self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","update"]) || self::userIsAdmin();
+     }
+ 
+     public static function canDelete($record): bool
+     {
+         return self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","delete"]) || self::userIsAdmin();
+     }
     protected static ?string $model = StockMovement::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
@@ -43,7 +66,13 @@ class StockMovementResource extends Resource
                 Tables\Columns\TextColumn::make('id')->sortable(),
                 Tables\Columns\TextColumn::make('product.name'),
                 Tables\Columns\TextColumn::make('user.name'),
-                Tables\Columns\TextColumn::make('type'),
+                Tables\Columns\TextColumn::make('type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'out' => 'danger',
+                        'in' => 'success',
+                        default => 'primary',
+                    }),
                 Tables\Columns\TextColumn::make('quantity'),
                 Tables\Columns\TextColumn::make('cost_price')->money('usd', true),
                 Tables\Columns\TextColumn::make('selling_price')->money('usd', true),
@@ -52,14 +81,26 @@ class StockMovementResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->date(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('product')
+                    ->relationship('product', 'name'),
+                Tables\Filters\SelectFilter::make('user')
+                    ->relationship('user', 'name'),
+                Tables\Filters\Filter::make('low_stock')
+                    ->query(fn ($query) => $query->where('quantity_available', '<=', 10))
+                    ->label('Low Stock'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","read"]) || self::userIsAdmin()),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","update"]) || self::userIsAdmin()),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","delete"]) || self::userIsAdmin()),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","delete"]) || self::userIsAdmin()),
                 ]),
             ]);
     }

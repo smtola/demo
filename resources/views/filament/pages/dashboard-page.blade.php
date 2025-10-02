@@ -14,10 +14,6 @@
                         <a class="text-primary-600 hover:underline dark:text-primary-400" href="{{ \App\Filament\Resources\CategoryResource::getUrl() }}">Categories</a>
                     </li>
                     <li class="flex gap-2">
-                        <span class="text-gray-400">3)</span>
-                        <a class="text-primary-600 hover:underline dark:text-primary-400" href="{{ \App\Filament\Resources\SupplierResource::getUrl() }}">Suppliers</a>
-                    </li>
-                    <li class="flex gap-2">
                         <span class="text-gray-400">4)</span>
                         <a class="text-primary-600 hover:underline dark:text-primary-400" href="{{ \App\Filament\Resources\CustomerResource::getUrl() }}">Customers</a>
                     </li>
@@ -28,10 +24,6 @@
                     <li class="flex gap-2">
                         <span class="text-gray-400">6)</span>
                         <a class="text-primary-600 hover:underline dark:text-primary-400" href="{{ \App\Filament\Resources\ProductVariantResource::getUrl() }}">Variants (optional)</a>
-                    </li>
-                    <li class="flex gap-2">
-                        <span class="text-gray-400">7)</span>
-                        <a class="text-primary-600 hover:underline dark:text-primary-400" href="{{ \App\Filament\Resources\PurchaseResource::getUrl() }}">Purchases (receive stock)</a>
                     </li>
                     <li class="flex gap-2">
                         <span class="text-gray-400">8)</span>

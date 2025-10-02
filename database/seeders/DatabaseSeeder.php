@@ -25,12 +25,33 @@ class DatabaseSeeder extends Seeder
     {
         // --- Roles & Users ---
         $this->command->info('Creating roles...');
-        $roles = ['Admin', 'Manager', 'Accountant', 'Sales', 'Support'];
+        $roleData = [
+            'Admin' => [
+                'description' => 'Full system access with all permissions',
+                'permissions' => ['*']
+            ],
+            'Manager' => [
+                'description' => 'Management access with most permissions',
+                'permissions' => ['read', 'create', 'update', 'manage_products', 'manage_sales', 'manage_purchases', 'manage_inventory', 'view_reports']
+            ],
+            'Accountant' => [
+                'description' => 'Financial management and reporting access',
+                'permissions' => ['read', 'create', 'update', 'manage_sales', 'manage_purchases', 'view_reports']
+            ],
+            'Sales' => [
+                'description' => 'Sales and customer management access',
+                'permissions' => ['read', 'create', 'update', 'manage_sales', 'manage_products']
+            ],
+            'Support' => [
+                'description' => 'Basic support and read-only access',
+                'permissions' => ['read']
+            ]
+        ];
 
-        foreach ($roles as $roleName) {
+        foreach ($roleData as $roleName => $data) {
             Role::updateOrCreate(
                 ['name' => $roleName],
-                ['permissions' => json_encode([])]
+                $data
             );
         }
         

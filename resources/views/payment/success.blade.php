@@ -145,6 +145,7 @@
             <p><strong>Customer:</strong> {{ $sale->customer_info }}</p>
             <p><strong>Total:</strong> ${{ number_format($sale->total_amount, 2) }}</p>
             <p><strong>Status:</strong> {{ ucfirst($sale->status) }}</p>
+            <p><strong>Status:</strong> {{ ucfirst($sale->payment_method) }}</p>
         @else
             <h1 class="text-xl font-bold mb-4">No Sale Found ⚠️</h1>
             <p>{{ $message ?? 'Payment details not available.' }}</p>

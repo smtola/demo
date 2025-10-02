@@ -21,7 +21,8 @@ class LaravelCloudSeeder extends Seeder
             $adminRole = Role::firstOrCreate(
                 ['name' => 'Admin'],
                 [
-                    'permissions' => json_encode(['*']),
+                    'description' => 'Full system access with all permissions',
+                    'permissions' => ['*'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]
@@ -31,7 +32,8 @@ class LaravelCloudSeeder extends Seeder
             $managerRole = Role::firstOrCreate(
                 ['name' => 'Manager'],
                 [
-                    'permissions' => json_encode(['read', 'write', 'update']),
+                    'description' => 'Management access with most permissions',
+                    'permissions' => ['read', 'create', 'update', 'manage_products', 'manage_sales', 'manage_purchases', 'manage_inventory', 'view_reports'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]
@@ -52,15 +54,28 @@ class LaravelCloudSeeder extends Seeder
             );
 
             // Create additional roles if they don't exist
-            $roles = ['Accountant', 'Sales', 'Support'];
-            foreach ($roles as $roleName) {
+            $roleData = [
+                'Accountant' => [
+                    'description' => 'Financial management and reporting access',
+                    'permissions' => ['read', 'create', 'update', 'manage_sales', 'manage_purchases', 'view_reports']
+                ],
+                'Sales' => [
+                    'description' => 'Sales and customer management access',
+                    'permissions' => ['read', 'create', 'update', 'manage_sales', 'manage_products']
+                ],
+                'Support' => [
+                    'description' => 'Basic support and read-only access',
+                    'permissions' => ['read']
+                ]
+            ];
+
+            foreach ($roleData as $roleName => $data) {
                 Role::firstOrCreate(
                     ['name' => $roleName],
-                    [
-                        'permissions' => json_encode([]),
+                    array_merge($data, [
                         'created_at' => now(),
                         'updated_at' => now(),
-                    ]
+                    ])
                 );
             }
 

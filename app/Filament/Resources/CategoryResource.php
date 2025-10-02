@@ -12,9 +12,32 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Traits\HasPermissions;
 
 class CategoryResource extends Resource
 {
+    use HasPermissions;
+    // Permission-based access control
+    public static function canViewAny(): bool
+    {
+        return self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","read"]) || self::userIsAdmin();
+    }
+ 
+    public static function canCreate(): bool
+    {
+        return self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","create"]) || self::userIsAdmin();
+    }
+ 
+    public static function canEdit($record): bool
+    {
+        return self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","update"]) || self::userIsAdmin();
+    }
+ 
+    public static function canDelete($record): bool
+    {
+        return self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","delete"]) || self::userIsAdmin();
+    }
+
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
@@ -37,10 +60,26 @@ class CategoryResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')->date(),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_at'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query 
+                            ->when($data['created_at'], function($q, $date) {
+                                return $q->whereDate('created_at', $date);
+                            });
+                    })
             ])
+            ->defaultSort('name', 'desc')
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->visible(fn(): bool => self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","read"]) || self::userIsAdmin()),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn(): bool => self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","update"]) || self::userIsAdmin()),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn(): bool => self::userCanAny(["manage_products","manage_sales","manage_purchases","manage_inventory","view_reports","delete"]) || self::userIsAdmin())
+                    ->requiresConfirmation(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

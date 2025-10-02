@@ -4,7 +4,6 @@ namespace App\Filament\Pages;
 
 use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\SalesOverviewChart;
-use App\Filament\Widgets\PurchasesOverviewChart;
 use App\Filament\Widgets\ExpensesOverviewChart;
 use App\Filament\Widgets\LowStockProductsWidget;
 use Filament\Pages\Page;
@@ -20,7 +19,6 @@ class DashboardPage extends Page
         return [
             StatsOverview::class,
             SalesOverviewChart::class,
-            PurchasesOverviewChart::class,
             ExpensesOverviewChart::class,
             LowStockProductsWidget::class,
         ];

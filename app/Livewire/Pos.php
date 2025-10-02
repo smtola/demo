@@ -361,7 +361,7 @@ class Pos extends Component
             // ✅ Create Sale & related records in DB
             $userId = Auth::id();
             $customer = Customer::firstOrCreate(['name' => trim($this->customer)]);
-
+            
             $sale = Sale::create([
                 'customer_id'   => $customer->id,
                 'user_id'       => $userId,

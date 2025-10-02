@@ -9,7 +9,7 @@ class Sale extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['customer_id', 'user_id', 'reference', 'subtotal', 'discount', 'tax', 'total_amount', 'status', 'sale_date', 'customer_info'];
+    protected $fillable = ['customer_id', 'user_id', 'reference', 'subtotal', 'discount', 'tax', 'total_amount', 'status', 'sale_date', 'customer_info','payment_method','created_at'];
 
     protected $casts = [
         'sale_date' => 'date',

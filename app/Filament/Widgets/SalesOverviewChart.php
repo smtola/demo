@@ -11,7 +11,7 @@ class SalesOverviewChart extends LineChartWidget
     protected int|string|array $columnSpan = [
         'default' => 1,
         'md' => 3,
-        'lg' => 2,
+        'lg' => 1,
     ];
 
     protected function getData(): array
