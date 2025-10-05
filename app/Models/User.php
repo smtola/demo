@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -143,6 +144,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return $this->isAdmin() || $this->isManager();
     }
 }
