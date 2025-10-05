@@ -428,15 +428,6 @@ class Pos extends Component
         }
     }
 
-    // --------------------
-    // Print receipt
-    // --------------------
-    public function printReceipt($saleId): void
-    {
-        $sale = Sale::with('items.product')->findOrFail($saleId);
-        $receiptHtml = view('exports.receipt', compact('sale'))->render();
-        $this->dispatchBrowserEvent('print-receipt', ['html' => $receiptHtml]);
-    }
 
     public function render()
     {
@@ -444,4 +435,5 @@ class Pos extends Component
             'products' => $this->products,
         ]);
     }
+
 }

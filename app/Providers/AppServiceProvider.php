@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+use Livewire\Livewire;
 
 use Illuminate\Support\ServiceProvider;
 use App\Models\Product;
@@ -32,6 +33,7 @@ use App\Models\AuditLog;
 use App\Models\ProductVariant;
 use App\Models\Warehouse;
 use App\Models\SaleItem;
+use App\Livewire\PrintReceipt;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -64,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
         SaleItem::observe(AuditObserver::class);
         Warehouse::observe(AuditObserver::class);
         ProductVariant::observe(AuditObserver::class);
-        
+        Livewire::component('print-receipt', PrintReceipt::class);
         // Ensure proper asset URL for production and Vercel
         $appUrl = config('app.url');
         if (str_contains($appUrl, 'vercel.app') || app()->environment('production')) {

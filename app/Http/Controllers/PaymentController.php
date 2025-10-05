@@ -10,40 +10,38 @@ class PaymentController extends Controller
     // Frontend redirect after payment
     public function success(Request $request)
     {
-        $tranId = $request->query('tran_id'); // from ?tran_id=...
+        $tranId = $request->query('tran_id'); // ?tran_id=...
         $sale = Sale::where('reference', $tranId)->first();
-       
+    
         if (!$sale) {
             return view('payment.success')->with('message', 'Sale not found or payment not completed.');
         }
-
-        return view('payment.success', compact('sale'));
+    
+        // Optional: pass status from PayWay if available
+        $statusCode = $request->query('status_code') ?? '00'; // fallback to "00" if missing
+    
+        return view('payment.success', compact('sale', 'statusCode'));
     }
- 
-    // Backend notification (server-to-server)
-    public function notify(Request $request)
+    
+    public function update(Request $request)
     {
-        $data = $request->all();
-        Log::info('Payment notify payload received', [
-            'payload' => $data,
-            'headers' => $request->headers->all(),
-            'ip' => $request->ip(),
+        $request->validate([
+            'tran_id' => 'required|string',
+            'status_code' => 'required|string',
         ]);
 
-        $transactionId = $data['tran_id'] ?? $data['transaction_id'] ?? null;
-        $status = (string) ($data['status'] ?? $data['result'] ?? '');
+        $tranId = $request->tran_id;
+        $statusCode = $request->status_code;
 
-        if (!$transactionId) {
-            Log::warning('Payment notify missing transaction id', ['payload' => $data]);
-            return response()->json(['message' => 'Missing transaction id'], 422);
+        $sale = Sale::where('reference', $tranId)->first();
+        if (!$sale) {
+            return response()->json(['error' => 'Sale not found'], 404);
         }
 
-        $isSuccess = $status === '0' || $status === '00' || strtolower($status) === 'success';
+        $isPaid = ($statusCode === '00' || strtolower($statusCode) === 'success');
+        $sale->status = $isPaid ? 'paid' : 'failed';
+        $sale->save();
 
-        Sale::where('reference', $transactionId)->update([
-            'status' => $isSuccess ? 'paid' : 'failed',
-        ]);
-
-        return response()->json(['message' => 'OK']);
+        return response()->json(['message' => 'Status updated', 'status' => $sale->status]);
     }
 }

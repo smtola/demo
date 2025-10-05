@@ -28,4 +28,10 @@ class DashboardPage extends Page
     {
         return 2;
     }
+
+        // ✅ Allow access to authenticated users
+        public static function canAccess(): bool
+        {
+            return auth()->check();
+        }
 }

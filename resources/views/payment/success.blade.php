@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -136,20 +137,35 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="color-scheme" content="light dark">
     <meta name="theme-color" content="#0ea5e9">
+    @livewireStyles
 </head>
 <body class="text-gray-900">
-    <div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded shadow">
-        @if(isset($sale))
-            <h1 class="text-xl font-bold mb-4">Payment Successful ✅</h1>
-            <p><strong>Reference:</strong> {{ $sale->reference }}</p>
-            <p><strong>Customer:</strong> {{ $sale->customer_info }}</p>
-            <p><strong>Total:</strong> ${{ number_format($sale->total_amount, 2) }}</p>
-            <p><strong>Status:</strong> {{ ucfirst($sale->status) }}</p>
-            <p><strong>Status:</strong> {{ ucfirst($sale->payment_method) }}</p>
-        @else
-            <h1 class="text-xl font-bold mb-4">No Sale Found ⚠️</h1>
-            <p>{{ $message ?? 'Payment details not available.' }}</p>
-        @endif
+   
+    <div class="container mx-auto py-10">
+        <livewire:print-receipt :sale-id="$sale->id" />
     </div>
+        @if($sale->status === 'pending')
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    fetch("{{ route('livewire.payment.status.update') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        },
+                        body: JSON.stringify({
+                            tran_id: "{{ $sale->reference }}",
+                            status_code: "{{ $statusCode }}"
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('Livewire updated status:', data);
+                        window.location.href = "/payment/success"; // redirect back to POS page
+                    });
+                });
+            </script>
+        @endif  
+    @livewireScripts
 </body>
 </html>

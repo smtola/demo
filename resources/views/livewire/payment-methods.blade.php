@@ -112,7 +112,6 @@
                 <input type="hidden" name="return_params" value="{{ $return_params }}">
                 <input type="hidden" name="return_url" value="{{ $return_url }}">
                 <input type="hidden" name="continue_success_url" value="{{ $continue_success_url }}">
-                <input type="hidden" name="notify_url" value="{{ route('payment.notify') }}">
             </form>
         @endif
         <input type="button" @disabled(!$isSelectedPaymentMethod) id="checkout_button" value="Pay Now" class="w-full space-y-4 px-6 py-4 rounded-xl bg-blue-700  text-white font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">

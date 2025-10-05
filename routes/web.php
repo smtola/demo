@@ -30,6 +30,5 @@ Route::get('/purchase/receive', PurchaseReceive::class);
 Route::get('/expense/quick', QuickExpense::class);
 
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
-Route::post('/payment/notify', [PaymentController::class, 'notify'])
-    ->name('payment.notify')
-    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class);
+Route::post('/livewire/payment-status', [PaymentController::class, 'update'])
+    ->name('livewire.payment.status.update');
