@@ -144,6 +144,28 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isAdmin() || $this->isManager();
+        // Allow access if user is authenticated and has a role
+        if (!$this->role) {
+            \Log::warning('User access denied: No role assigned', [
+                'user_id' => $this->id,
+                'email' => $this->email,
+                'panel' => $panel->getId()
+            ]);
+            return false;
+        }
+
+        // Allow Admin and Manager roles
+        $hasAccess = $this->isAdmin() || $this->isManager();
+        
+        // Log access attempts for debugging
+        \Log::info('Panel access check', [
+            'user_id' => $this->id,
+            'email' => $this->email,
+            'role' => $this->role->name,
+            'panel' => $panel->getId(),
+            'has_access' => $hasAccess
+        ]);
+
+        return $hasAccess;
     }
 }

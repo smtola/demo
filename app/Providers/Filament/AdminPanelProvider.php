@@ -15,6 +15,9 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Support\Assets\Asset;
+use Filament\Support\Facades\FilamentAsset;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -54,6 +57,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentApexChartsPlugin::make()
-            ]);
+            ])
+            ->renderHook(
+                'panels::auth.login.form.after',
+                fn (): string => view('filament.auth.debug-info'),
+            );
     }
 }
