@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -142,7 +141,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role->permissions ?? [];
     }
 
-    public function canAccessPanel(Panel $panel): bool
+    public function canAccessPanel(\Filament\Panel $panel): bool
     {
         // Allow access if user is authenticated and has a role
         if (!$this->role) {
