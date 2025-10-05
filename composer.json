@@ -7,15 +7,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "^3.1",
         "bezhansalleh/filament-language-switch": "^3.1",
         "filament/filament": "^3.0",
+        "filament/spatie-laravel-media-library-plugin": "^3.3",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.0",
         "leandrocfe/filament-apex-charts": "^3.0",
         "livewire/livewire": "^3.6",
         "ntanduy/cloudflare-d1-database": "^0.2.2",
-        "pusher/pusher-php-server": "^7.2"
+        "pusher/pusher-php-server": "^7.2",
+        "pxlrbt/filament-excel": "^2.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

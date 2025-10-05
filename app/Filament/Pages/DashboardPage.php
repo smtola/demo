@@ -6,6 +6,9 @@ use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\SalesOverviewChart;
 use App\Filament\Widgets\ExpensesOverviewChart;
 use App\Filament\Widgets\LowStockProductsWidget;
+use App\Filament\Widgets\StockMovementsOverview;
+use App\Filament\Widgets\StockMovementsChart;
+use App\Filament\Widgets\RecentStockMovements;
 use Filament\Pages\Page;
 
 class DashboardPage extends Page
@@ -18,9 +21,12 @@ class DashboardPage extends Page
     {
         return [
             StatsOverview::class,
+            StockMovementsOverview::class,
             SalesOverviewChart::class,
             ExpensesOverviewChart::class,
+            StockMovementsChart::class,
             LowStockProductsWidget::class,
+            RecentStockMovements::class,
         ];
     }
 
@@ -28,10 +34,4 @@ class DashboardPage extends Page
     {
         return 2;
     }
-
-        // ✅ Allow access to authenticated users
-        public static function canAccess(): bool
-        {
-            return auth()->check();
-        }
 }

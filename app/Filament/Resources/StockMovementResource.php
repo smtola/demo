@@ -117,6 +117,7 @@ class StockMovementResource extends Resource
         return [
             'index' => Pages\ListStockMovements::route('/'),
             'create' => Pages\CreateStockMovement::route('/create'),
+            'view' => Pages\ViewStockMovement::route('/{record}'),
             'edit' => Pages\EditStockMovement::route('/{record}/edit'),
         ];
     }

@@ -69,7 +69,8 @@ class ProductResource extends Resource
             Forms\Components\TextInput::make('quantity_available')
                 ->numeric()
                 ->required()
-                ->default(0),
+                ->default(0)
+                ->helperText('This will create a stock movement when saved'),
             Forms\Components\Select::make('warehouse_id')
                 ->relationship('warehouse', 'name')
                 ->required(),

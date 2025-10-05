@@ -57,10 +57,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentApexChartsPlugin::make()
-            ])
-            ->renderHook(
-                'panels::auth.login.form.after',
-                fn (): string => view('filament.auth.debug-info'),
-            );
+            ]);
     }
 }

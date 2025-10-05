@@ -29,23 +29,23 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
     /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
      */
-    // protected function casts(): array
-    // {
-    //     return [
-    //         'email_verified_at' => 'datetime',
-    //         'password' => 'hashed',
-    //     ];
-    // }
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     public function role()
     {
@@ -141,30 +141,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role->permissions ?? [];
     }
 
-    public function canAccessPanel(\Filament\Panel $panel): bool
+    public function canAccessPanel(Panel $panel): bool
     {
-        // Allow access if user is authenticated and has a role
-        if (!$this->role) {
-            \Log::warning('User access denied: No role assigned', [
-                'user_id' => $this->id,
-                'email' => $this->email,
-                'panel' => $panel->getId()
-            ]);
-            return false;
-        }
-
-        // Allow Admin and Manager roles
-        $hasAccess = $this->isAdmin() || $this->isManager();
-        
-        // Log access attempts for debugging
-        \Log::info('Panel access check', [
-            'user_id' => $this->id,
-            'email' => $this->email,
-            'role' => $this->role->name,
-            'panel' => $panel->getId(),
-            'has_access' => $hasAccess
-        ]);
-
-        return $hasAccess;
+        return true;
     }
 }

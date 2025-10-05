@@ -41,14 +41,18 @@ class StockMovement extends Model
                 return;
             }
 
-            $currentQty = (int) $product->quantity_available;
-            $newQty = $movement->type === 'in'
-                ? $currentQty + (int) $movement->quantity
-                : $currentQty - (int) $movement->quantity;
+            // Only update quantity if this is a manual stock movement (not from product creation/update)
+            // This prevents double-counting when we manually create stock movements
+            if ($movement->note && !str_contains($movement->note, 'Initial stock') && !str_contains($movement->note, 'Stock in - Quantity increased')) {
+                $currentQty = (int) $product->quantity_available;
+                $newQty = $movement->type === 'in'
+                    ? $currentQty + (int) $movement->quantity
+                    : $currentQty - (int) $movement->quantity;
 
-            $product->quantity_available = $newQty;
-            // Use save() to fire Eloquent updated event so ProductObserver runs
-            $product->save();
+                $product->quantity_available = $newQty;
+                // Use save() to fire Eloquent updated event so ProductObserver runs
+                $product->save();
+            }
         });
     }
 }

@@ -25,6 +25,11 @@ class AuditObserver
 
     protected function record($action, $model, $data = [])
     {
+        // Only record audit logs if user is authenticated
+        if (!Auth::check()) {
+            return;
+        }
+        
         AuditLog::create([
             'user_id'     => Auth::id(),
             'action'      => $action,

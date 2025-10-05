@@ -13,6 +13,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Traits\HasPermissions;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SaleResource extends Resource
 {
@@ -117,12 +121,106 @@ class SaleResource extends Resource
                     ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","update"]) || self::userIsAdmin()),
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","delete"]) || self::userIsAdmin()),
+                Tables\Actions\Action::make('print_sticker')
+                    ->label('Print Sticker')
+                    ->icon('heroicon-o-printer')
+                    ->color('info')
+                    ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","read"]) || self::userIsAdmin())
+                    ->form([
+                        Forms\Components\TextInput::make('customer_name')
+                            ->label('Customer Name')
+                            ->required()
+                            ->default(fn ($record) => $record->customer->name ?? ''),
+                        Forms\Components\TextInput::make('sender_number')
+                            ->label('Sender Number')
+                            ->required(),
+                        Forms\Components\TextInput::make('customer_phone')
+                            ->label('Customer Phone Number')
+                            ->required()
+                            ->default(fn ($record) => $record->customer->phone ?? ''),
+                        Forms\Components\TextInput::make('location')
+                            ->label('Location')
+                            ->required(),
+                        Forms\Components\Textarea::make('products')
+                            ->label('Products')
+                            ->required()
+                            ->default(fn ($record) => $record->items->map(function($item) {
+                                return $item->product->name . ' x' . $item->quantity . ' - $' . number_format($item->subtotal, 2);
+                            })->join("\n")),
+                        Forms\Components\TextInput::make('total_amount')
+                            ->label('Total Amount')
+                            ->required()
+                            ->default(fn ($record) => '$' . number_format($record->total_amount, 2)),
+                    ])
+                    ->action(function (array $data, $record) {
+                        return redirect()->route('print.sticker', [
+                            'sale_id' => $record->id,
+                            'customer_name' => $data['customer_name'],
+                            'sender_number' => $data['sender_number'],
+                            'customer_phone' => $data['customer_phone'],
+                            'location' => $data['location'],
+                            'products' => $data['products'],
+                            'total_amount' => $data['total_amount'],
+                        ]);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","delete"]) || self::userIsAdmin()),
+                    ExportBulkAction::make()
+                        ->exports([
+                            ExcelExport::make()
+                                ->withColumns([
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('id')->heading('ID'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('customer.name')->heading('Customer Name'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('user.name')->heading('User'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('reference')->heading('Reference'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('subtotal')->heading('Subtotal'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('discount')->heading('Discount'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('tax')->heading('Tax'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('total_amount')->heading('Total Amount'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('payment_method')->heading('Payment Method'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('status')->heading('Status'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('sale_date')->heading('Sale Date'),
+                                    \pxlrbt\FilamentExcel\Columns\Column::make('created_at')->heading('Created At'),
+                                ])
+                        ])
+                        ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","read"]) || self::userIsAdmin()),
                 ]),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exports([
+                        ExcelExport::make()
+                            ->withColumns([
+                                \pxlrbt\FilamentExcel\Columns\Column::make('id')->heading('ID'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('customer.name')->heading('Customer Name'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('user.name')->heading('User'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('reference')->heading('Reference'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('subtotal')->heading('Subtotal'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('discount')->heading('Discount'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('tax')->heading('Tax'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('total_amount')->heading('Total Amount'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('payment_method')->heading('Payment Method'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('status')->heading('Status'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('sale_date')->heading('Sale Date'),
+                                \pxlrbt\FilamentExcel\Columns\Column::make('created_at')->heading('Created At'),
+                            ])
+                    ])
+                    ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","read"]) || self::userIsAdmin()),
+                Tables\Actions\Action::make('export_pdf')
+                    ->label('Export PDF')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('danger')
+                    ->visible(fn (): bool => self::userCanAny(["manage_users","manage_products","manage_purchases","view_reports","manage_settings","manage_inventory","manage_sales","manage_roles","read"]) || self::userIsAdmin())
+                    ->action(function () {
+                        $sales = Sale::with(['customer', 'user', 'items.product'])->get();
+                        $pdf = Pdf::loadView('exports.sales-pdf', compact('sales'));
+                        return response()->streamDownload(function () use ($pdf) {
+                            echo $pdf->output();
+                        }, 'sales-report-' . now()->format('Y-m-d') . '.pdf');
+                    }),
             ]);
     }
 

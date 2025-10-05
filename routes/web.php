@@ -5,6 +5,7 @@ use App\Livewire\PurchaseReceive;
 use App\Livewire\QuickExpense;
 use App\Models\Product;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PrintStickerController;
 
 Route::view('/', 'pos');
 
@@ -32,3 +33,5 @@ Route::get('/expense/quick', QuickExpense::class);
 Route::get('/payment/success', [PaymentController::class, 'success'])->name('payment.success');
 Route::post('/livewire/payment-status', [PaymentController::class, 'update'])
     ->name('livewire.payment.status.update');
+
+Route::get('/print/sticker', [PrintStickerController::class, 'printSticker'])->name('print.sticker');
